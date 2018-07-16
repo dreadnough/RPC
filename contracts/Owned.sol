@@ -1,19 +1,4 @@
-/* 
-  Super Contract to add manage the ownership of a contract.
-
-  Modifiers:
-  - onlyOwner
-
-  Core functions:
-  - Constructor
-  - changeOwner
-  - confirmChangeOwner
-
-  Support functions:
-  - getInfoOwner
-  - getInfoNewOwner
-
-*/
+pragma solidity ^0.4.4;
 
 contract Owned {
     address private owner;
@@ -24,18 +9,16 @@ contract Owned {
         _;
     }
 
-// CORE functions
-
-        event LogOwnedNew (address _sender);
+    event LogOwnedNew (address _sender);
         // Constructor
-    function Owned ()
+    constructor ()
         public
     {
         owner = msg.sender;
-        LogOwnedNew(msg.sender);
+        emit LogOwnedNew(msg.sender);
     }
 
-        event LogOwnedChangeOwner (address _sender, address _newOwner);
+    event LogOwnedChangeOwner (address _sender, address _newOwner);
         // 2-step ownership transfer function
         // This is the first step where the original owner requests the transfer
     function changeOwner(address _newOwner)
@@ -46,30 +29,28 @@ contract Owned {
         require(_newOwner != 0);
 
         newOwner = _newOwner;
-        LogOwnedChangeOwner(msg.sender, _newOwner);
+        emit LogOwnedChangeOwner(msg.sender, _newOwner);
         return true;
     }
 
-        event LogOwnedConfirmChangeOwner (address _sender, address _newOwner);
+    event LogOwnedConfirmChangeOwner (address _sender, address _newOwner);
         // 2-step ownership transfer function
         // This is the second step where the new  owner confirms the transfer
     function confirmChangeOwner()
         public
         returns(bool _success)
     {
-        require(msg.sender == newOwner); //ensure the sender is the correct address
+        require(msg.sender == newOwner); //check the sender is the correct address
 
         owner = newOwner;
         delete newOwner;
 
-        LogOwnedConfirmChangeOwner(msg.sender, newOwner);
+        emit LogOwnedConfirmChangeOwner(msg.sender, newOwner);
         return true;
-    }
-
-// SUPPORT functions    
+    } 
 
     function getInfoOwner()
-        constant
+        view
         public
         returns (address _owner)
     {
@@ -77,7 +58,7 @@ contract Owned {
     }
 
     function getInfoNewOwner()
-        constant
+        view
         public
         returns (address _newOwner)
     {
